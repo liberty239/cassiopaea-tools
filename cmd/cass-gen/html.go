@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/user"
 	"text/template"
 	"time"
 
@@ -69,6 +70,9 @@ h2 {
 .span {
 	box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
 }
+small {
+	font-size: smaller;
+}
 `
 
 const htmlTpl = `
@@ -87,6 +91,12 @@ const htmlTpl = `
     <a href="#{{.Id}}">{{.DateSansYear}}</a><br/>
 {{end}}
 </div>
+
+{{if .Signature}}
+<div class="main">
+    <center><small>{{.Signature}}</small></center>
+</div>
+{{end}}
 
 {{range .Data}}
 	<section id={{.Id}}>
@@ -113,14 +123,40 @@ type htmlContextData struct {
 }
 
 type htmlConetxt struct {
-	Css  string
-	Data []htmlContextData
+	Css       string
+	Signature string
+	Data      []htmlContextData
+}
+
+func buildSignature() (string, error) {
+	user, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+
+	host, err := os.Hostname()
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf(
+		"Built by %s@%s at %s",
+		user.Name,
+		host,
+		time.Now().Format(time.RFC1123),
+	), nil
 }
 
 func doHtml(args args) error {
 	then := time.Now()
 
 	s, err := term.Spinner().Start("Rendering...")
+	if err != nil {
+		s.Fail(err)
+		return err
+	}
+
+	sig, err := buildSignature()
 	if err != nil {
 		s.Fail(err)
 		return err
@@ -154,7 +190,8 @@ func doHtml(args args) error {
 	}
 
 	ctx := htmlConetxt{
-		Css: htmlCss,
+		Css:       htmlCss,
+		Signature: sig,
 	}
 
 	src := adapter.Chain(
