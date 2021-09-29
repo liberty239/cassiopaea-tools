@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"os/user"
+	"strings"
 	"text/template"
 	"time"
 
@@ -79,6 +80,9 @@ const htmlTpl = `
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+{{range .MetaTags}}
+	<meta name="{{.Key}}" content="{{.Value}}">
+{{end}}
 <style>{{.Css}}</style>
 </head>
 
@@ -112,6 +116,11 @@ const htmlTpl = `
 </body>
 </html>`
 
+type htmlMetaTag struct {
+	Key   string
+	Value string
+}
+
 type htmlContextData struct {
 	Id           string
 	Date         string
@@ -125,6 +134,7 @@ type htmlContextData struct {
 type htmlConetxt struct {
 	Css       string
 	Signature string
+	MetaTags  []htmlMetaTag
 	Data      []htmlContextData
 }
 
@@ -145,6 +155,18 @@ func buildSignature() (string, error) {
 		host,
 		time.Now().Format(time.RFC1123),
 	), nil
+}
+
+func parseMetaTags(args args) (ret []htmlMetaTag) {
+	for _, x := range strings.Split(args.MetaTags, ",") {
+		if tags := strings.Split(x, ":"); len(tags) == 2 {
+			ret = append(ret, htmlMetaTag{
+				Key:   tags[0],
+				Value: tags[1],
+			})
+		}
+	}
+	return
 }
 
 func doHtml(args args) error {
@@ -192,6 +214,7 @@ func doHtml(args args) error {
 	ctx := htmlConetxt{
 		Css:       htmlCss,
 		Signature: sig,
+		MetaTags:  parseMetaTags(args),
 	}
 
 	src := adapter.Chain(

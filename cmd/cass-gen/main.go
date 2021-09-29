@@ -10,19 +10,21 @@ var usage = `Cassiopaea Session Generator.
 
 Usage:
   cass-gen epub <directory> <file>
-  cass-gen html <directory> <file>
+  cass-gen html <directory> <file> [--meta-tags=<tags>]
   cass-gen -h | --help
   cass-gen --version
 
 Options:
-  -h --help  Show this screen.
-  --version  Show version.`
+  --meta-tags=<tags>  Comma separated list of key:value pairs.
+  -h --help           Show this screen.
+  --version           Show version.`
 
 type args struct {
 	Epub      bool   `docopt:"epub"`
 	Html      bool   `docopt:"html"`
 	File      string `docopt:"<file>"`
 	Directory string `docopt:"<directory>"`
+	MetaTags  string `docopt:"--meta-tags"`
 }
 
 func main() {
