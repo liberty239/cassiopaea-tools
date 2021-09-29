@@ -144,6 +144,11 @@ func buildSignature() (string, error) {
 		return "", err
 	}
 
+	name := user.Name
+	if len(name) == 0 {
+		name = "uid:" + user.Uid
+	}
+
 	host, err := os.Hostname()
 	if err != nil {
 		return "", err
@@ -151,7 +156,7 @@ func buildSignature() (string, error) {
 
 	return fmt.Sprintf(
 		"Built by %s@%s at %s",
-		user.Name,
+		name,
 		host,
 		time.Now().Format(time.RFC1123),
 	), nil
@@ -255,6 +260,10 @@ func doHtml(args args) error {
 	m.AddFunc("text/html", mhtml.Minify)
 	m.AddFunc("text/css", css.Minify)
 	wc := m.Writer("text/html", f)
+
+	// Hacks to make GoogleBot happy...
+	mhtml.DefaultMinifier.KeepDocumentTags = true
+	mhtml.DefaultMinifier.KeepQuotes = true
 
 	if err := html.TemplateExecute(
 		tpl,
