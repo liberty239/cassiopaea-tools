@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -101,7 +102,7 @@ const htmlTpl = `
 {{if .Signature}}
 <div class="main">
     <center><small>{{.Signature}}</small></center>
-	<center><small>Session count: {{getCount .}}</small></center>
+	<center><small>{{getCount .}} transcripts: {{.From}} - {{.To}}</small></center>
 </div>
 {{end}}
 
@@ -137,7 +138,7 @@ type htmlContextData struct {
 type htmlConetxt struct {
 	Css       string
 	Signature string
-	Count     int
+	From, To  string
 	MetaTags  []htmlMetaTag
 	Data      []htmlContextData
 }
@@ -247,6 +248,14 @@ func doHtml(args args) error {
 		s.Fail(err)
 		return err
 	}
+
+	if len(ctx.Data) == 0 {
+		err := errors.New("no sessions")
+		s.Fail(err)
+		return err
+	}
+	ctx.From = ctx.Data[0].Date
+	ctx.To = ctx.Data[len(ctx.Data)-1].Date
 
 	var year string
 	for i, x := range ctx.Data {
