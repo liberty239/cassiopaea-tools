@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"os/user"
+	"strconv"
 	"strings"
 	"text/template"
 	"time"
@@ -94,11 +95,13 @@ const htmlTpl = `
 	{{end}}
     <a href="#{{.Id}}">{{.DateSansYear}}</a><br/>
 {{end}}
+<p></p>
 </div>
 
 {{if .Signature}}
 <div class="main">
     <center><small>{{.Signature}}</small></center>
+	<center><small>Session count: {{getCount .}}</small></center>
 </div>
 {{end}}
 
@@ -134,6 +137,7 @@ type htmlContextData struct {
 type htmlConetxt struct {
 	Css       string
 	Signature string
+	Count     int
 	MetaTags  []htmlMetaTag
 	Data      []htmlContextData
 }
@@ -209,6 +213,9 @@ func doHtml(args args) error {
 					return false
 				})
 				return
+			},
+			"getCount": func(ctx *htmlConetxt) string {
+				return strconv.Itoa(len(ctx.Data))
 			},
 		}).
 		Parse(htmlTpl)
