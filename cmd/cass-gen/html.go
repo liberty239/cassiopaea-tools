@@ -76,6 +76,9 @@ h2 {
 small {
 	font-size: smaller;
 }
+.answer {
+	background-color: rgb(232,232,232);
+}
 `
 
 const htmlTpl = `

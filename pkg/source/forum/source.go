@@ -103,6 +103,14 @@ func elementToDocument(ctx context.Context, e *colly.HTMLElement) (ret io.ReadCl
 			return
 		}
 
+		q.Find("p").EachWithBreak(func(i int, s *goquery.Selection) bool {
+			text := strings.TrimSpace(s.Text())
+			if strings.HasPrefix(text, "A:") {
+				s.SetAttr("class", "answer")
+			}
+			return true
+		})
+
 		if n := q.Find("head").Nodes; len(n) > 0 {
 			for _, meta := range []*xhtml.Node{
 				html.NewMetaNode("url", e.Request.URL.String()),
