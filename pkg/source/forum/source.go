@@ -86,9 +86,12 @@ func elementToDocument(ctx context.Context, e *colly.HTMLElement) (ret io.ReadCl
 
 		q := goquery.NewDocumentFromNode(doc)
 		q.Find("img").EachWithBreak(func(i int, s *goquery.Selection) bool {
-			if src, ok := s.Attr("src"); ok {
+			if src, ok := s.Attr("src"); ok && len(src) > 0 {
 				ctx, cf := context.WithTimeout(ctx, scrapeTimeout)
 				defer cf()
+
+				src = absoluteUrl(src)
+				src = removeUrlReturnErrorQueryParam(src)
 
 				src, err = http.GetDataURL(ctx, absoluteUrl(src))
 				if err != nil {

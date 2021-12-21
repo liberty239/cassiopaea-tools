@@ -82,3 +82,15 @@ func packageName() string {
 	type test struct{}
 	return reflect.TypeOf(test{}).PkgPath()
 }
+
+func removeUrlReturnErrorQueryParam(rawurl string) string {
+	url, err := url.Parse(rawurl)
+	if err != nil {
+		return ""
+	}
+
+	q := url.Query()
+	q.Del("return_error")
+	url.RawQuery = q.Encode()
+	return url.String()
+}
