@@ -3,6 +3,7 @@ package forum
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"sort"
 	"strings"
@@ -91,10 +92,12 @@ func elementToDocument(ctx context.Context, e *colly.HTMLElement) (ret io.ReadCl
 				defer cf()
 
 				src = absoluteUrl(src)
-				src = removeUrlReturnErrorQueryParam(src)
+				src = rewriteProxyPhpUrl(src)
+				src2 := src
 
 				src, err = http.GetDataURL(ctx, src)
 				if err != nil {
+					fmt.Println("AH", src2, err)
 					return false
 				}
 

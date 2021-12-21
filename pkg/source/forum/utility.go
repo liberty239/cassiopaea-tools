@@ -3,6 +3,7 @@ package forum
 import (
 	"fmt"
 	"net/url"
+	"path"
 	"reflect"
 	"strings"
 	"time"
@@ -83,14 +84,22 @@ func packageName() string {
 	return reflect.TypeOf(test{}).PkgPath()
 }
 
-func removeUrlReturnErrorQueryParam(rawurl string) string {
+func rewriteProxyPhpUrl(rawurl string) string {
 	url, err := url.Parse(rawurl)
 	if err != nil {
 		return ""
 	}
 
-	q := url.Query()
-	q.Del("return_error")
-	url.RawQuery = q.Encode()
+	_, f := path.Split(url.Path)
+	if f == "proxy.php" {
+		if img := url.Query().Get("image"); len(img) > 0 {
+			return img
+		}
+
+		q := url.Query()
+		q.Del("return_error")
+		url.RawQuery = q.Encode()
+	}
+
 	return url.String()
 }
