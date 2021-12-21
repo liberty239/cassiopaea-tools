@@ -93,7 +93,7 @@ func elementToDocument(ctx context.Context, e *colly.HTMLElement) (ret io.ReadCl
 				src = absoluteUrl(src)
 				src = removeUrlReturnErrorQueryParam(src)
 
-				src, err = http.GetDataURL(ctx, absoluteUrl(src))
+				src, err = http.GetDataURL(ctx, src)
 				if err != nil {
 					return false
 				}
