@@ -3,7 +3,6 @@ package forum
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"io"
 	"sort"
 	"strings"
@@ -93,15 +92,18 @@ func elementToDocument(ctx context.Context, e *colly.HTMLElement) (ret io.ReadCl
 
 				src = absoluteUrl(src)
 				src = rewriteProxyPhpUrl(src)
-				src2 := src
 
-				src, err = http.GetDataURL(ctx, src)
+				var ct string
+				src, ct, err = http.GetDataURL(ctx, src)
 				if err != nil {
-					fmt.Println("AH", src2, err)
 					return false
 				}
 
-				s.SetAttr("src", src)
+				if isImage(ct) {
+					s.SetAttr("src", src)
+				} else {
+					s.Remove()
+				}
 			}
 			return true
 		})

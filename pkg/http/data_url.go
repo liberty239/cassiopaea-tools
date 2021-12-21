@@ -11,15 +11,15 @@ import (
 	"github.com/vincent-petithory/dataurl"
 )
 
-func GetDataURL(ctx context.Context, url string) (string, error) {
+func GetDataURL(ctx context.Context, url string) (string, string, error) {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	defer func() {
 		io.Copy(ioutil.Discard, resp.Body)
@@ -27,7 +27,7 @@ func GetDataURL(ctx context.Context, url string) (string, error) {
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf(
+		return "", "", fmt.Errorf(
 			"%d: %s",
 			resp.StatusCode,
 			http.StatusText(resp.StatusCode),
@@ -36,12 +36,12 @@ func GetDataURL(ctx context.Context, url string) (string, error) {
 
 	var b bytes.Buffer
 	if _, err := io.Copy(&b, resp.Body); err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	ct := resp.Header.Get("Content-Type")
 	if len(ct) == 0 {
 		ct = http.DetectContentType(b.Bytes())
 	}
-	return dataurl.New(b.Bytes(), ct).String(), nil
+	return dataurl.New(b.Bytes(), ct).String(), ct, nil
 }

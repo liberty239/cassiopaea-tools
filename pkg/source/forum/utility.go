@@ -103,3 +103,12 @@ func rewriteProxyPhpUrl(rawurl string) string {
 
 	return url.String()
 }
+
+func isImage(contentType string) bool {
+	switch contentType {
+	case "image/jpeg", "image/gif", "image/png":
+		return true
+	default:
+		return false
+	}
+}
