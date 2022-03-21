@@ -22,3 +22,17 @@ func NewMetaNode(key, value string) *html.Node {
 		},
 	}
 }
+
+func NewMetaCharsetNode(value string) *html.Node {
+	return &html.Node{
+		Type:     html.ElementNode,
+		Data:     "meta",
+		DataAtom: atom.Meta,
+		Attr: []html.Attribute{
+			{
+				Key: "charset",
+				Val: value,
+			},
+		},
+	}
+}

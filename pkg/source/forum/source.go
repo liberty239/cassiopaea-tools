@@ -121,6 +121,7 @@ func elementToDocument(ctx context.Context, e *colly.HTMLElement) (ret io.ReadCl
 
 		if n := q.Find("head").Nodes; len(n) > 0 {
 			for _, meta := range []*xhtml.Node{
+				html.NewMetaCharsetNode("UTF-8"),
 				html.NewMetaNode("url", e.Request.URL.String()),
 				html.NewMetaNode("timestamp", ts.Format(time.RFC3339)),
 			} {
