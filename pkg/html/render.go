@@ -20,7 +20,9 @@ func sanitizeNode(n *html.Node) *html.Node {
 		n.Data = strings.ReplaceAll(n.Data, "“", "\"")
 		n.Data = strings.ReplaceAll(n.Data, "”", "\"")
 		n.Data = strings.ReplaceAll(n.Data, "’", "'")
-		n.Data = strings.Trim(n.Data, "â€œ�\u009d")
+		n.Data = strings.ReplaceAll(n.Data, "â€œ", "")
+		n.Data = strings.ReplaceAll(n.Data, "â€�", "")
+		n.Data = strings.ReplaceAll(n.Data, "\u009d", "")
 		n.Data = norm.NFC.String(n.Data)
 	}
 	return n
